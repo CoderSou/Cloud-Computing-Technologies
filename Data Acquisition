@@ -1,0 +1,22 @@
+# Data Acquisition
+# Acquire the top 200,000 posts by viewcount
+SELECT count(*) FROM posts WHERE posts.ViewCount>112522
+SELECT count(*) FROM posts WHERE posts.ViewCount<=112522 AND posts.ViewCount>66242
+SELECT count(*) FROM posts WHERE posts.ViewCount<=66242 AND posts.ViewCount>47304
+ 
+# To get Data
+SELECT * FROM posts WHERE posts.ViewCount>112522 ORDER BY posts.ViewCount DESC
+SELECT * FROM posts WHERE posts.ViewCount<=112522 AND posts.ViewCount>66242 ORDER BY posts.ViewCount DESC
+
+# Link to the 3rd file: https://data.stackexchange.com/stackoverflow/query/1334183
+SELECT TOP 50000 * FROM posts WHERE posts.ViewCount<=66242 AND posts.ViewCount>47304 ORDER BY posts.ViewCount DESC
+SELECT TOP 49873 * FROM posts WHERE posts.ViewCount<=47304 ORDER BY posts.ViewCount DESC
+
+# Make directory
+:~$ hadoop fs -mkdir /ca675
+
+# Putting the data from machine to Main Node
+:~$ hadoop fs -put File1.csv/ca675
+:~$ hadoop fs -put File1.csv/ca675
+:~$ hadoop fs -put File1.csv/ca675
+:~$ hadoop fs -put File1.csv/ca675
