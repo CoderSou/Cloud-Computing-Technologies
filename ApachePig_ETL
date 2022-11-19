@@ -1,0 +1,58 @@
+# Opening PIG
+:~$ Pig
+# In Pig grunt shell
+grunt> pwd
+grunt> REGISTER /usr/lib/hadoop/hadoop-common-2.9.2.jar
+grunt> file1 = LOAD ‘/ca675/File1.csv’ USING org.apache.pig.piggybank.storage.CSVExcelStorage(',', 'NO_MULTILINE', 'NOCHANGE','SKIP_INPUT_HEADER') AS (Id:int, PostTypeId:int, AcceptedAnswerId:int, ParentId:int, CreationDate:chararray, DeletionDate:chararray, Score:int, ViewCount:int, Body:chararray, OwnerUserId:int, OwnerDisplayName:chararray, LastEditorUserId:int, LastEditorDisplayName:chararray, LastEditDate:chararray, LastActivityDate:chararray, Title:chararray, Tags:chararray, AnswerCount:int, CommentCount:int, FavoriteCount:int, ClosedDate:chararray, CommunityOwnedDate:chararray, ContentLicense:chararray);
+grunt> file2 = LOAD ‘/ca675/File2.csv’ USING org.apache.pig.piggybank.storage.CSVExcelStorage(',', 'NO_MULTILINE', 'NOCHANGE','SKIP_INPUT_HEADER') AS (Id:int, PostTypeId:int, AcceptedAnswerId:int, ParentId:int, CreationDate:chararray, DeletionDate:chararray, Score:int, ViewCount:int, Body:chararray, OwnerUserId:int, OwnerDisplayName:chararray, LastEditorUserId:int, LastEditorDisplayName:chararray, LastEditDate:chararray, LastActivityDate:chararray, Title:chararray, Tags:chararray, AnswerCount:int, CommentCount:int, FavoriteCount:int, ClosedDate:chararray, CommunityOwnedDate:chararray, ContentLicense:chararray);
+grunt> file3 = LOAD ‘/ca675/File3.csv’ USING org.apache.pig.piggybank.storage.CSVExcelStorage(',', 'NO_MULTILINE', 'NOCHANGE','SKIP_INPUT_HEADER') AS (Id:int, PostTypeId:int, AcceptedAnswerId:int, ParentId:int, CreationDate:chararray, DeletionDate:chararray, Score:int, ViewCount:int, Body:chararray, OwnerUserId:int, OwnerDisplayName:chararray, LastEditorUserId:int, LastEditorDisplayName:chararray, LastEditDate:chararray, LastActivityDate:chararray, Title:chararray, Tags:chararray, AnswerCount:int, CommentCount:int, FavoriteCount:int, ClosedDate:chararray, CommunityOwnedDate:chararray, ContentLicense:chararray);
+grunt> file4 = LOAD ‘/ca675/File4.csv’ USING org.apache.pig.piggybank.storage.CSVExcelStorage(',', 'NO_MULTILINE', 'NOCHANGE','SKIP_INPUT_HEADER') AS (Id:int, PostTypeId:int, AcceptedAnswerId:int, ParentId:int, CreationDate:chararray, DeletionDate:chararray, Score:int, ViewCount:int, Body:chararray, OwnerUserId:int, OwnerDisplayName:chararray, LastEditorUserId:int, LastEditorDisplayName:chararray, LastEditDate:chararray, LastActivityDate:chararray, Title:chararray, Tags:chararray, AnswerCount:int, CommentCount:int, FavoriteCount:int, ClosedDate:chararray, CommunityOwnedDate:chararray, ContentLicense:chararray);
+# To combine files
+grunt> data = UNION file1, file2, file3, file4; 
+# Generate specific columns
+grunt> A = FOREACH data GENERATE Id, Score, Title;
+grunt> B = FOREACH data GENERATE Score, OwnerUserId, OwnerDisplayName;
+grunt> C = FOREACH data GENERATE OwnerUserId, Body, Title, Tags;
+# Transform only B
+grunt> B1 = FILTER B by ((OwnerUserId IS NOT NULL) AND (OwnerDisplayName IS NOT NULL));
+# Display A
+grunt> DUMP A;
+# Store results in HDFS
+grunt> STORE A INTO 'hdfs://cluster-ca675-m/pig_proj/pig_output_A' USING org.apache.pig.piggybank.storage.CSVExcelS
+torage(',','YES_MULTILINE','NOCHANGE');
+grunt> STORE B1 INTO 'hdfs://cluster-ca675-m/pig_proj/pig_output_B' USING org.apache.pig.piggybank.storage.CSVExcel
+Storage(',','YES_MULTILINE','NOCHANGE');
+grunt> STORE C INTO 'hdfs://cluster-ca675-m/pig_proj_1/pig_output_C' USING org.apache.pig.piggybank.storage.CSVExce
+lStorage(',','YES_MULTILINE','NOCHANGE');
+grunt> quit
+
+# In Main Node
+# Delete the success file
+:~$ hadoop fs -ls /pig_proj/pig_output_A
+:~$ hadoop fs -rm /pig_proj/pig_output_A/_SUCCESS
+:~$ hadoop fs -rm /pig_proj/pig_output_B/_SUCCESS
+:~$ hadoop fs -rm /pig_proj_1/pig_output_C/_SUCCESS
+# Check for deletion
+:~$ hadoop fs -ls /pig_proj/pig_output_A
+:~$ hadoop fs -ls /pig_proj/pig_output_B
+:~$ hadoop fs -ls /pig_proj/pig_output_C
+
+# Merge each of those directories
+:~$ hadoop fs -getmerge -nl /pig_proj/pig_output_A/part-m-00000 /pig_proj/pig_output_A
+/part-m-00001 /pig_proj/pig_output_A/part-m-00002 /pig_proj/pig_output_A/part-m-00003 /home/sourav_maiti2/merged_A.csv
+:~$ hadoop fs -getmerge -nl /pig_proj/pig_output_B/part-m-00000 /pig_proj/pig_output_B/part-m
+-00001 /pig_proj/pig_output_B/part-m-00002 /pig_proj/pig_output_B/part-m-00003 /home/sourav_maiti2/merged_B.csv
+:~$ hadoop fs -getmerge -nl /pig_proj_1/pig_output_C/part-m-00000 /pig_proj_1/pig_output_C/pa
+rt-m-00001 /pig_proj_1/pig_output_C/part-m-00002 /pig_proj_1/pig_output_C/part-m-00003 /home/sourav_maiti2/merged_D.csv
+# List all the files in Machine
+:~$ ls -l
+
+# Make directory in HDFS and transfer those files 
+:~$ hadoop fs -mkdir /pig_results 
+:~$ hadoop fs -put merged_A.csv /pig_results
+:~$ hadoop fs -put merged_B.csv /pig_results
+:~$ hadoop fs -put merged_D.csv /pig_results
+
+# Check results
+:~$ hadoop fs -ls /
+:~$ hadoop fs -ls /pig_results
