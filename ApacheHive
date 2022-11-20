@@ -1,0 +1,29 @@
+# Opening HIVE
+:~$ hive
+# Make Tables
+hive> CREATE EXTERNAL TABLE task_1 (Id int comment 'id', Score int comment 'scores', Title string) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+hive> CREATE EXTERNAL TABLE task_2 (UserId int comment 'User Id', Score int comment 'scores',) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+hive> CREATE EXTERNAL TABLE task_4 (UserId int, Body string, Title string, Tags string) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+
+# Display the names of Tables
+hive> show tables;
+
+# Load data from HDFS into the tables
+hive> LOAD DATA INPATH 'hdfs://cluster-ca675-m/pig_results/merged_A.csv' INTO TABLE task_1;
+hive> LOAD DATA INPATH 'hdfs://cluster-ca675-m/pig_results/merged_B.csv' INTO TABLE task_2;
+hive> LOAD DATA INPATH 'hdfs://cluster-ca675-m/pig_results/merged_D.csv' INTO TABLE task_4;
+
+# Top 10 posts by score
+hive> SELECT Id, Score, Title FROM task_1 
+ORDER BY Score DESC 
+LIMIT 10;
+
+# Top 10 users by post score
+hive> SELECT UserId, SUM(Score) AS total_score FROM task_2 
+GROUP BY UserID 
+ORDER BY total_score DESC 
+LIMIT 10;
+
+# Number of distinct users, who used the word “Hadoop” in one of their posts
+hive> SELECT COUNT(DISTINCT UserId) AS distinct_user_count FROM task_4 
+WHERE (LOWER(Body) like '%hadoop%' OR LOWER(Title) like '%hadoop%' OR LOWER (Tags) like '%hadoop%'); 
