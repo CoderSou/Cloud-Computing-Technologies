@@ -1,7 +1,7 @@
 # Opening HIVE
 :~$ hive
 # Make Tables
-hive> CREATE EXTERNAL TABLE task_1 (Id int comment 'id', Score int comment 'scores', Title string) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+hive> CREATE EXTERNAL TABLE task_1 (Id int comment 'id', Score int comment 'scores', UserId int comment 'User Id', Title string) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
 hive> CREATE EXTERNAL TABLE task_2 (UserId int comment 'User Id', Score int comment 'scores',) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
 hive> CREATE EXTERNAL TABLE task_4 (UserId int, Body string, Title string, Tags string) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
 
